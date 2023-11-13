@@ -1,12 +1,19 @@
 <!-- collection_edit.html -->
 <form method="post" action="">
-    {% csrf_token %}
-    <label for="name">Nombre:</label>
-    <input type="text" name="name" value="{{ collection.name }}" required>
-  
-    <label for="description">Descripción:</label>
-    <textarea name="description" required>{{ collection.description }}</textarea>
-  
-    <button type="submit">Guardar cambios</button>
-  </form>
-  
+  {% csrf_token %}
+  <label for="name">Nombre:</label>
+  <input type="text" name="name" value="{{ collection.name }}" required>
+
+  <label for="description">Descripción:</label>
+  <textarea name="description" required>{{ collection.description }}</textarea>
+
+  <!-- Nuevo apartado para añadir colaboradores -->
+  <label for="collaborators">Colaboradores:</label>
+  <select name="collaborators" multiple>
+      {% for user in collaborators %}
+          <option value="{{ user.id }}" {% if user in collection.collaborators.all %}selected{% endif %}>{{ user.username }}</option>
+      {% endfor %}
+  </select>
+
+  <button type="submit">Guardar cambios</button>
+</form>

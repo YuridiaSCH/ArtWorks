@@ -1,13 +1,17 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 import random
 from collection.models import Artwork, Collection, Artist
 from django.contrib.postgres import search
 from django.core.paginator import Paginator
+from django.urls import reverse
 from .forms import CollectionForm
+
 
 def register(request):
     if request.method == 'POST':
@@ -26,6 +30,18 @@ def register(request):
 
     return render(request, 'registration/registration_form.html', {'form': f})
 
+@login_required
+def user_info(request):
+    # Puedes acceder a los datos del usuario a través de request.user
+    user_info = {
+        'username': request.user.username,
+        'email': request.user.email,
+        'collection_count': Collection.objects.filter(owner=request.user).count(),
+        'collections': Collection.objects.filter(owner=request.user),
+    }
+
+    return render(request, 'collection/user_info.html', {'user_info': user_info})
+
 
 def artwork(request, artwork_id):
     artwork = Artwork.objects.get(pk=artwork_id)
@@ -43,10 +59,11 @@ def collection_list(request):
     return render(request, 'collection/collection_list.html',
                   {'collections': collections})
 
+
 def artist_detail(request, artist_id):
     artist = get_object_or_404(Artist, id=artist_id)
     return render(request, 'collection/artist.html', {'artist': artist})
-    
+
 def view_collection(request, collection_id):
     collection = Collection.objects.get(pk=collection_id)
     artworks = collection.artworks.all()
@@ -67,13 +84,21 @@ def add_to_collection(request, artwork_id):
 
 def collection_edit(request, collection_id):
     collection = get_object_or_404(Collection, id=collection_id)
+    collaborators = User.objects.exclude(id=request.user.id)  # Excluir al propietario de la colección como colaborador
+    
     if request.method == 'POST':
-        # Actualizar los campos de la colección  directamente
+        # Actualizar los campos de la colección directamente
         collection.name = request.POST.get('name')
         collection.description = request.POST.get('description')
+
+        # Añadir colaboradores seleccionados
+        collaborators_selected = request.POST.getlist('collaborators')
+        collection.collaborators.set(collaborators_selected)
+
         collection.save()
-        return  redirect('collections') 
-    return render(request, 'collection/collection_edit.html', {'collection': collection})
+        return redirect('collections')
+    
+    return render(request, 'collection/collection_edit.html', {'collection': collection, 'collaborators': collaborators})
 
 def remove_collection(request, collection_id):
     if request.method == 'POST':
@@ -152,3 +177,4 @@ def ft_artworks(value):
         .filter(search=query)
         .order_by("-rank")
     )
+

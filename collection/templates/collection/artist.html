@@ -2,9 +2,25 @@
 
 {% block content %}
 <div class="container mx-auto px-5 py-2 lg:px-32 lg:pt-12">
-    <div class="bg-white shadow rounded-lg p-6">
-        <h1 class="text-3xl font-bold">{{ artist.name }}</h1>
-        <p>Born: {{ artist.born_date }}</p>
+    <div class="bg-white shadow rounded-lg p-6 text-center">
+        <div class="bg-gray-200 shadow rounded-lg p-6 text-center">
+            <h1 class="text-3xl font-bold">{{ artist.name }}</h1>
+            <p>Born: {{ artist.born_date }}</p>
+        </div>
+        
+        <!-- Mostrar todas las pinturas del autor -->
+        <h2 class="text-2xl font-semibold mt-4">Pinturas del autor:</h2>
+        <ul class="list-none p-0">
+            {% for artwork in artist.artwork_set.all %}
+                <li class="text-left">
+                    <div class="text-center">
+                        <h3>{{ artwork.title }}</h3>
+                    </div>
+                    <img src="{{ artwork.image_url }}" alt="{{ artwork.title }}" class="max-w-full mx-auto mt-2"> <!-- Agrega la clase mx-auto para centrar horizontalmente -->
+                </li>
+            {% endfor %}
+        </ul>
     </div>
 </div>
 {% endblock content %}
+

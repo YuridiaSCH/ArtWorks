@@ -7,7 +7,6 @@ class Artist(models.Model):
     name = models.CharField(max_length=80)
     born_date = models.CharField(max_length=40)
 
-
 class Genre(models.Model):
     name = models.CharField(max_length=40, unique=True)
 
@@ -32,7 +31,12 @@ class Artwork(models.Model):
 
 
 class Collection(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.RESTRICT)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='owned_collections')
     artworks = models.ManyToManyField(Artwork)
     name = models.CharField(max_length=80)
     description = models.TextField(blank=True)
+    collaborators = models.ManyToManyField(User, related_name='collaborated_collections', blank=True)
+    
+    def __str__(self):
+        return self.name
+

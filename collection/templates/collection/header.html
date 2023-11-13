@@ -58,7 +58,7 @@
 
     {% if user.is_authenticated %}
         <div class="relative ml-4 flex-shrink-0">
-          <a href="#" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500"> Hola, {{user.username}} </a>
+          <a href="{% url 'user_info' %}" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500"> Hola, {{user.username}} </a>
         </div>
         <div class="relative ml-4 flex-shrink-0">
           <a href="/accounts/logout" class="inline-flex items-center px-1 pt-1 text-sm font-medium text-sky-700">Termina Sesión</a>
